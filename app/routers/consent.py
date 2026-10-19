@@ -8,12 +8,12 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import JSONResponse
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app import consent
 from app.deps import db_session, staff_actor
-from app.models import Purpose
+from app.models import CollectionLog, Purpose
 from app.schemas import CollectIn, ConsentIn, ConsentItem, HaltIn
 
 router = APIRouter(prefix="/v1", tags=["consent and collection"])
@@ -88,3 +88,21 @@ def resume(purpose_key: str, db: Session = Depends(db_session), actor: str = Dep
     consent.resume(db, p, actor)
     db.commit()
     return {"purpose": p.key, "halted": False}
+
+
+@router.get("/collection/stats")
+def collection_stats(db: Session = Depends(db_session), _actor: str = Depends(staff_actor)) -> list[dict]:
+    """Accepted and refused collection attempts per purpose: the evidence that a halt took effect."""
+    rows = db.execute(
+        select(CollectionLog.purpose_key, CollectionLog.reason, func.count())
+        .group_by(CollectionLog.purpose_key, CollectionLog.reason)
+        .order_by(CollectionLog.purpose_key)
+    ).all()
+    out: dict[str, dict] = {}
+    for purpose, reason, n in rows:
+        out.setdefault(purpose, {"purpose": purpose, "accepted": 0, "refused": {}})
+        if reason == "granted":
+            out[purpose]["accepted"] += n
+        else:
+            out[purpose]["refused"][reason] = n
+    return list(out.values())

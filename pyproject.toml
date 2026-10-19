@@ -38,3 +38,4 @@ ignore = [
 testpaths = ["tests"]
 pythonpath = ["."]
 addopts = "-q"
+filterwarnings = ["ignore:.*httpx.*"]

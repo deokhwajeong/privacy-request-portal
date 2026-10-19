@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy Request Portal</title>
+<meta name="description" content="DSR operations console generated from the privacy-request-portal reference service on synthetic requests.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="masthead">
+  <div class="wrap masthead-inner">
+    <div class="brand">
+      <svg class="mark" viewBox="0 0 40 40" aria-hidden="true">
+        <path d="M20 3 L34 8 V19 C34 28 28 34 20 37 C12 34 6 28 6 19 V8 Z" fill="#1f3d63"/>
+        <path d="M13 13 H27 M13 18 H24 M13 23 H21" stroke="#f6f1e7" stroke-width="2.4" stroke-linecap="round"/>
+        <circle cx="27" cy="26" r="5.2" fill="#f6f1e7"/>
+        <path d="M24.6 26.1 L26.4 27.9 L29.6 24.5" stroke="#1f3d63" stroke-width="1.9" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div>
+        <h1>Privacy Request Portal</h1>
+        <p class="tagline">Data subject request operations console</p>
+      </div>
+    </div>
+    <div class="meta">
+      <span id="asof" class="asof"></span>
+      <span id="chain" class="chain"></span>
+    </div>
+  </div>
+  <nav class="wrap tabs" aria-label="Sections">
+    <a href="#queue">Queue</a>
+    <a href="#detail">Request detail</a>
+    <a href="#regulations">Deadlines by regulation</a>
+    <a href="#collection">Collection gate</a>
+  </nav>
+</header>
+
+<main class="wrap">
+  <p class="note">Every figure below is real output from the reference service (FastAPI + SQLite) after replaying synthetic requests through its API with a controlled clock. Names, accounts, and systems are fictional.</p>
+
+  <section class="kpis" id="kpis" aria-label="Summary"></section>
+
+  <section id="queue" class="panel">
+    <div class="panel-head">
+      <h2>Open queue</h2>
+      <p class="sub">Sorted by statutory due date. At risk = final quarter of the window, or a downstream system has failed or is past its confirmation SLA.</p>
+    </div>
+    <div class="qhead" aria-hidden="true">
+      <span>Request</span><span>Regime / type</span><span>Status</span><span>SLA</span><span>Due</span><span>Left</span><span>Blocked on</span>
+    </div>
+    <div id="queue-list" class="qlist"></div>
+    <details class="closed">
+      <summary>Closed requests <span id="closed-count"></span></summary>
+      <div id="closed-list" class="qlist"></div>
+    </details>
+  </section>
+
+  <section id="detail" class="panel">
+    <div class="panel-head">
+      <h2>Request detail</h2>
+      <p class="sub">Verification to deletion, with each downstream confirmation and the request's audit trail.</p>
+    </div>
+    <div id="featured" class="featured" role="list"></div>
+    <div id="detail-body"></div>
+  </section>
+
+  <section id="regulations" class="panel">
+    <div class="panel-head">
+      <h2>Deadlines by regulation</h2>
+      <p class="sub">Windows and extensions as computed by the service. Denials count as met when the notice went out inside the window.</p>
+    </div>
+    <div id="reg-cards" class="reg-cards"></div>
+    <h3 class="h3">Deadline rules applied</h3>
+    <div id="rules" class="table-wrap"></div>
+    <h3 class="h3">Downstream system registry</h3>
+    <div id="systems" class="table-wrap"></div>
+  </section>
+
+  <section id="collection" class="panel">
+    <div class="panel-head">
+      <h2>Collection gate</h2>
+      <p class="sub">Clients ask before sending any event. Withdrawn consent and program-wide halts both stop collection; refusals are counted as evidence.</p>
+    </div>
+    <div id="purposes" class="table-wrap"></div>
+  </section>
+</main>
+
+<footer class="wrap foot">
+  <p>Reference implementation for illustration. Not legal advice. Source: privacy-request-portal (MIT).</p>
+</footer>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

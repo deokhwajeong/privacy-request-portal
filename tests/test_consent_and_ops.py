@@ -105,3 +105,17 @@ def test_staff_view_masks_email(client):
     created = submit(client)
     view = client.get(f"/v1/requests/{created['request_id']}", headers=STAFF).json()
     assert view["contact_email_masked"] == "m***@example.com"
+
+
+def test_collection_stats_prove_halt_took_effect(client):
+    client.put(f"/v1/consent/{ACCT}/personalized_ads", json={"granted": True})
+    _collect(client, "personalized_ads")
+    client.post("/v1/purposes/personalized_ads/halt", json={"reason": "Vendor review"}, headers=STAFF)
+    _collect(client, "personalized_ads")
+    _collect(client, "personalized_ads")
+    stats = {s["purpose"]: s for s in client.get("/v1/collection/stats", headers=STAFF).json()}
+    assert stats["personalized_ads"] == {
+        "purpose": "personalized_ads",
+        "accepted": 1,
+        "refused": {"purpose_halted": 2},
+    }
